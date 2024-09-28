@@ -54,3 +54,12 @@ class Posts():
         db_curosor.execute(sql)
         mysql_db.commit()
         return "delete Success"
+    
+    @staticmethod
+    def search_title(title):
+        mysql_db = conn_mysqldb()
+        db_cursor = mysql_db.cursor()
+        sql = f"select * from posts where title like '%{title}%';"
+        db_cursor.execute(sql)
+        posts = db_cursor.fetchall()
+        return posts

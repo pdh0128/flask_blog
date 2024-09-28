@@ -103,7 +103,44 @@
       flex-direction: column;
       width : 1000px;
     }
-
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      transition: border-color 0.3s ease;
+    }
+    label {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 8px;
+      display: block;
+    }
+    input[type="text"]:focus {
+      border-color: #3498db;
+    }
+    .submit-btn {
+      padding: 10px 20px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+      background-color: #27ae60;
+    }
     </style>
 
     
@@ -148,19 +185,23 @@
 <div class="container">
   <header class="border-bottom lh-1 py-3">
     <div class="row flex-nowrap justify-content-between align-items-center">
-      <div class="col-4 pt-1">
-        <a class="link-secondary" href="#">박동현</a>
+      <div class="col-1 pt-1">
+        <a class="link-secondary" href="/blog/not_search">박동현</a>
       </div>
       
-      <div class="col-4 d-flex justify-content-end align-items-center">
-        <a class="link-secondary" href="#" aria-label="Search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
+      <form id = search action="/blog/search" method=get>
+        <input type = text placeholder="제목을 입력하시오" name = "title" style="width:800px;">
+      </form>
+      <div class="col-1 d-flex justify-content-end align-items-center">
+        <a class="link-secondary" aria-label="Search">
+          <svg onclick="search()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
         </a>
       </div>
-
+    
       <div class="col-4 pt-1">
-        <a class="link-secondary" href="/blog/login">로그인</a>
+        <a class="link-secondary" href="/blog{%if not login%}/login">로그인{%else%}/logout">로그아웃{%endif%}</a>
       </div>
+
     </div>
   </header>
 
@@ -172,17 +213,27 @@
   <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
     <div class="col-lg-6 px-0">
       <h1>글 작성 페이지</h1>
+      {%if login%}
       <p class="lead mb-0"><a href="#" class="text-body-emphasis fw-bold" onclick="Write()">작성하기</a> </p>
     </div>
-    <form action="/blog/write" method="get" name = "write_chang" style = "display:none">
-      Title :  <input type = text name = "title">
-      <br>
-      description : <input type = text name = "description">
-      <br>
-      contents : <input type = text name = "contents">
-      <button type="submit">작성하기</button>
-    </form>
+    <form action="/blog/write" method="get" name="write_chang" style="display: none">
+      <div class="form-group">
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+      <div class="form-group">
+        <label for="description">설명</label>
+        <input type="text" id="description" name="description"required />
+      </div>
 
+      <div class="form-group">
+        <label for="contents">내용</label>
+        <input type="text" id="contents" name="content" required></input>
+      </div>
+      <input type = "hidden" name = "order" value = "{{order}}">
+      <button type="submit" class="submit-btn">작성하기</button>
+    </form>
+    {%endif%}
   </div>
 
   <nav class="blog-pagination" aria-label="Pagination">
@@ -203,23 +254,21 @@
           </a>
         </div>
         <form action = "/blog/delete">
-          <input type = "hidden" name = "id" value = "{{post[0]}}"">
+          <input type = "hidden" name = "id" value = "{{post[0]}}">
+          <input type = "hidden" name = "order" value = "{{order}}">
+          {%if login%}
           <button type="submit" class="btn btn-danger">삭제</button>
+          {%endif%}
         </form>
       </div>
     </div>
   {%endfor%}
 
-
-        
       </div>
     </div>
   </div>
-
   <div class="row g-5">
     <div class="col-md-8">
-  
-
     </div>
 
 
@@ -236,20 +285,9 @@
   const Write = () => {
     write_chang.style.display = write_chang.style.display === 'none' ? 'block' : 'none';
   }
-  document.write_chang.addEventListener("submit", event => {
-    event.preventDefault();
-    if (write_chang.title.value.trim() == "") {
-      write_chang.title.focus();
-      alert("제목을 입력하세요");
-      return;
-    }
-    else if (write_chang.description.value.trim() == "") {
-      write_chang.description.focus();
-      alert("설명을 입력하세요");
-      return;
-    }
-    write_chang.submit();
-  });
+  const search = () => {
+    document.querySelector("#search").submit()
+  }
 </script>
     </body>
 </html>

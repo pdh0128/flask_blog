@@ -1,17 +1,24 @@
-from flask import Flask, Blueprint, request, render_template, redirect
+from flask import Flask, Blueprint, request, render_template, redirect, session
 from control.posts import Posts
 from control.user_ngmt import User
-
+from flask_login import login_user, current_user
 blog_abtest = Blueprint('blog', __name__)
 
 
 
 def show_posts(order): 
-    posts = Posts.get()
+    if "title" in session:
+        title = session['title']
+        posts = Posts.search_title(title)
+    else:
+        posts = Posts.get()
+        
     if order == 'newer':
-        posts = reversed(posts)
-    return render_template("blog_A.html", posts=posts, order=order)
-
+            posts = reversed(posts)
+    if current_user.is_authenticated:
+        return render_template("blog_A.html", posts=posts, order=order, login=True)
+    else:
+        return render_template("blog_A.html", posts=posts, order=order)
 
 @blog_abtest.route("/") 
 def main_older():  # 게시물을 오래된 순으로 보여줌
@@ -33,12 +40,13 @@ def login_page():
         user_email = request.form.get("user_email")
         
         user = User.find(user_email)
-        # 로그인이 되어있는지 검증
+        # DB에 있는 계정이 맞는지 검증
         try:
             if user_email == user.user_email and user_password == user.user_password:
+                login_user(user)
                 return redirect("/blog")
         except AttributeError:
-            return "로그인 실패"
+            return redirect("/blog/login")
 
     return render_template("login.html")  
 
@@ -46,18 +54,40 @@ def login_page():
 def write():
     title = request.args.get("title")
     description = request.args.get("description")
-    content = request.args.get("description")
+    content = request.args.get("content")
     posts = Posts.create(title, description, content)
-    return redirect("/blog")
+    order = request.args.get("order")
+    if order == 'newer':
+        return redirect("/blog/newer")
+    else:
+        return redirect("/blog")
 
 
 @blog_abtest.route("/delete", methods=["GET"])
 def delete():
     blog_id = request.args.get("id")
     posts = Posts.delete(blog_id)
+    order = request.args.get("order")
+    if order == 'newer':
+        return redirect("/blog/newer")
+    else:
+        return redirect("/blog")
+    
+@blog_abtest.route("/search", methods=["GET"])
+def search():
+    if "title" in session:
+        del session['title']
+    title = request.args.get("title")
+    session['title'] = title
     return redirect("/blog")
 
+@blog_abtest.route("/not_search")
+def not_search():
+    if "title" in session:
+        del session['title']
+    return redirect("/blog")
 
-# @blog_abtest.route("/logined")
-# def logined_page():
-#     return redirect("/blog")
+@blog_abtest.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/blog")
