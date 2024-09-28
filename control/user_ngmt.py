@@ -17,7 +17,7 @@ class User(UserMixin):
     def get(user_id):
         mysql_db = conn_mysqldb()
         db_cursor = mysql_db.cursor()
-        sql = f"select * from user info where user_id = {str(user_id)};"
+        sql = f"select * from user_info where user_id = {str(user_id)};"
         db_cursor.execute(sql)
         user = db_cursor.fetchone()
         if not user:
@@ -29,7 +29,7 @@ class User(UserMixin):
     def find(user_email):
         mysql_db = conn_mysqldb()
         db_cursor = mysql_db.cursor()
-        sql = f"select * from user info where user_email = {str(user_email)};"
+        sql = f"select * from user_info where user_email = '{str(user_email)}';"
         db_cursor.execute(sql)
         user = db_cursor.fetchone()
         if not user:

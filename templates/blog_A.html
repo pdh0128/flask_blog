@@ -171,21 +171,23 @@
 <main class="container">
   <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
     <div class="col-lg-6 px-0">
-      <h1>글 작성 페이지에</h1>
+      <h1>글 작성 페이지</h1>
       <p class="lead mb-0"><a href="#" class="text-body-emphasis fw-bold" onclick="Write()">작성하기</a> </p>
     </div>
-    <form action="/write" method="get" name = "write_chang" style = "display:none"">
-      Title :  <input>
+    <form action="/blog/write" method="get" name = "write_chang" style = "display:none">
+      Title :  <input type = text name = "title">
       <br>
-      description : <input>
+      description : <input type = text name = "description">
+      <br>
+      contents : <input type = text name = "contents">
       <button type="submit">작성하기</button>
     </form>
 
   </div>
 
   <nav class="blog-pagination" aria-label="Pagination">
-    <a class="btn btn-outline-primary rounded-pill" href="#">Older</a>
-    <a class="btn btn-outline-secondary rounded-pill disabled" aria-disabled="true">Newer</a>
+    <a class="btn btn-outline-{%if order == "older"%}primary{%else%}secondary{%endif%} rounded-pill" href="/blog">Older</a>
+    <a class="btn btn-outline-{%if order == "older"%}secondary{%else%}primary{%endif%} rounded-pill" href="/blog/newer">Newer</a>
   </nav>
 
   {%for post in posts%}
@@ -193,14 +195,17 @@
     <div class="col-md-6">
       <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
         <div class="col p-4 d-flex flex-column position-static">
-          <h3 class="mb-0">{{post['title']}}</h3>
-          <div class="mb-1 text-body-secondary">{{post['date']}}</div>
-          <p class="card-text mb-auto">{{post['description']}}</p>
-          <a href="#" class="icon-link gap-1 icon-link-hover stretched-link">
+          <h3 class="mb-0">{{post[1]}}</h3>
+          <div class="mb-1 text-body-secondary">{{post[3]}}</div>
+          <p class="card-text mb-auto">{{post[2]}}</p>
+          <a href="post{{post[0]}}">
             자세히보기
           </a>
         </div>
-        <button type="button" class="btn btn-danger">삭제</button>
+        <form action = "/blog/delete">
+          <input type = "hidden" name = "id" value = "{{post[0]}}"">
+          <button type="submit" class="btn btn-danger">삭제</button>
+        </form>
       </div>
     </div>
   {%endfor%}
@@ -231,6 +236,20 @@
   const Write = () => {
     write_chang.style.display = write_chang.style.display === 'none' ? 'block' : 'none';
   }
+  document.write_chang.addEventListener("submit", event => {
+    event.preventDefault();
+    if (write_chang.title.value.trim() == "") {
+      write_chang.title.focus();
+      alert("제목을 입력하세요");
+      return;
+    }
+    else if (write_chang.description.value.trim() == "") {
+      write_chang.description.focus();
+      alert("설명을 입력하세요");
+      return;
+    }
+    write_chang.submit();
+  });
 </script>
     </body>
 </html>

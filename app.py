@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request, render_template, make_response
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
-# from flask_cors import CORS 먼저 플라스크로만 구현하는 단계에서는 안쓸껀데 나중에 주석 풀 예정
+# from flask_cors import CORS
 import os
 from view.blog_view import blog_abtest  
 from control.user_ngmt import User
+
 #https 프로토콜만을 지원하는 기능을 http 프로토콜로 테스트할 때 필요한 설정
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
