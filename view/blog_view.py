@@ -31,7 +31,8 @@ def main_newer():  # 게시물을 최근 순으로 보여줌
 @blog_abtest.route("/post<int:blog_id>")
 def article(blog_id):
     post = Posts.search(blog_id)[0]
-    return render_template('posts.html', post=post)
+    if current_user.is_authenticated : return render_template('posts.html', post=post, login=True)
+    else : return render_template('posts.html', post=post)
     
 @blog_abtest.route("/login", methods=["GET", "POST"])  
 def login_page():
@@ -41,14 +42,30 @@ def login_page():
         
         user = User.find(user_email)
         # DB에 있는 계정이 맞는지 검증
-        try:
+        if user != None:
             if user_email == user.user_email and user_password == user.user_password:
                 login_user(user)
                 return redirect("/blog")
-        except AttributeError:
-            return redirect("/blog/login")
+            else:
+                return redirect("/blog/login")
+    return render_template("login.html")
+        
+@blog_abtest.route("/signup", methods=["GET", "POST"])  
+def signup_page():
+    if request.method == "POST": 
+        user_password = request.form.get("user_password")
+        user_email = request.form.get("user_email")
+        user = User.find(user_email)
+        # DB에 있는 계정인지 확인
+        if user != None:
+            #이미 있는 계정
+            print("이미 존재하는 계정입니다.")
+            return render_template("signup.html", account=True)
+        
+        User.create(user_email, user_password)
+        return redirect("/blog/login")
 
-    return render_template("login.html")  
+    return render_template("signup.html")
 
 @blog_abtest.route("/write", methods=["GET"])
 def write():
@@ -86,6 +103,18 @@ def not_search():
     if "title" in session:
         del session['title']
     return redirect("/blog")
+
+@blog_abtest.route("/post<int:blog_id>/update")
+def update(blog_id):
+    return render_template("post_update.html", blog_id=blog_id)
+
+@blog_abtest.route("/post<int:blog_id>/updating", methods=["GET"])
+def updating(blog_id):
+    title = request.args.get("title")
+    description = request.args.get("description")
+    content = request.args.get("content")
+    Posts.update(blog_id, title, description, content)
+    return redirect(f"/blog/post{blog_id}")
 
 @blog_abtest.route("/logout")
 def logout():

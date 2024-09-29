@@ -6,7 +6,6 @@
     <title>Blog Post</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      /* 기본 스타일 */
       * {
         margin: 0;
         padding: 0;
@@ -70,13 +69,24 @@
         border-radius: 5px;
         transition: background-color 0.3s ease;
       }
+      .post-update:hover {
+        color: blue;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="post">
-        <a href="javascript:history.back()" class="back-button">← Back</a>
-        <div class="post-time">{{ post[3] }}</div>
+        <a href="/blog" class="back-button">← Back</a>
+        <br />
+        <div class="post-time">
+          {{ post[3] }}{%if login%}<br /><a
+            class="post-update"
+            href="post{{post[0]}}/update"
+            >수정</a
+          >{%endif%}
+        </div>
         <!-- 시간 -->
         <h1 class="post-title">{{ post[1] }}</h1>
         <!-- 제목 -->

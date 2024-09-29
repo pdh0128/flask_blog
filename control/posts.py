@@ -63,3 +63,12 @@ class Posts():
         db_cursor.execute(sql)
         posts = db_cursor.fetchall()
         return posts
+    
+    @staticmethod
+    def update(blog_id, title, description, content):
+        mysql_db = conn_mysqldb()
+        db_cursor = mysql_db.cursor()
+        sql = f"update posts set title = '{title}', description = '{description}', content = '{content}' where BLOG_ID = {blog_id};"
+        db_cursor.execute(sql)
+        mysql_db.commit()
+        return "success"
